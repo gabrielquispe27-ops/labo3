@@ -3,19 +3,20 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Clona el repositorio desde GitHub
                 checkout scm
             }
         }
         stage('SonarQube Analysis') {
             steps {
-                // Define una variable para la herramienta SonarScanner
-                // 'SonarScanner' DEBE ser el nombre exacto que pusiste en Global Tool Configuration
-                def scannerHome = tool 'SonarScanner'
-                
-                // Usa la variable para ejecutar el scanner
-                withSonarQubeEnv('sonarqube') {
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=labo3-gabriel -Dsonar.sources=."
+                // Para usar código Groovy, lo envolvemos en un bloque 'script'
+                script {
+                    // 'SonarScanner' debe ser el nombre exacto de tu herramienta en Jenkins
+                    def scannerHome = tool 'SonarScanner'
+                    
+                    // Usamos la variable para ejecutar el scanner con su ruta completa
+                    withSonarQubeEnv('sonarqube') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=labo3-gabriel -Dsonar.sources=."
+                    }
                 }
             }
         }
@@ -29,4 +30,3 @@ pipeline {
         }
     }
 }
-
