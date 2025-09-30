@@ -6,23 +6,29 @@ pipeline {
                 checkout scm
             }
         }
+        
+        // --- NUEVO STAGE: COMPILAR EL PROYECTO ---
+        stage('Build') {
+            steps {
+                // Este comando compila tu proyecto Java usando Maven.
+                // Si tu proyecto usa Gradle, el comando sería: sh './gradlew build'
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
-                // Para usar código Groovy, lo envolvemos en un bloque 'script'
                 script {
-                    // 'SonarScanner' debe ser el nombre exacto de tu herramienta en Jenkins
                     def scannerHome = tool 'SonarScanner'
-                    
-                    // Usamos la variable para ejecutar el scanner con su ruta completa
                     withSonarQubeEnv('sonarqube') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=labo3-gabriel -Dsonar.sources=."
+                        // Se añade la propiedad 'sonar.java.binaries'
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=labo3-gabriel -Dsonar.sources=. -Dsonar.java.binaries=target/classes"
                     }
                 }
             }
         }
         stage('Quality Gate') {
             steps {
-                // Espera el resultado del Quality Gate de SonarQube
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
