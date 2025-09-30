@@ -3,11 +3,15 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Realiza el checkout y descarga el contenido de los submódulos de forma recursiva
+                // Checkout explícito con credenciales para manejar submódulos
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
-                    userRemoteConfigs: [[url: 'https://github.com/gabrielquispe27-ops/laboratorio-3.git']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/gabrielquispe27-ops/laboratorio-3.git',
+                        // Aquí se usan las credenciales
+                        credentialsId: 'github-token'
+                    ]],
                     extensions: [[$class: 'SubmoduleOption', recursiveSubmodules: true]]
                 ])
             }
@@ -15,7 +19,6 @@ pipeline {
         
         stage('Build') {
             steps {
-                // Entra en la carpeta del proyecto que ahora sí contiene el pom.xml
                 dir('primer-api-rest') {
                     script {
                         def mvnHome = tool 'Maven_3.9.6'
@@ -27,7 +30,6 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                // Entra también en la carpeta para el análisis
                 dir('primer-api-rest') {
                     script {
                         def scannerHome = tool 'SonarScanner'
@@ -47,6 +49,7 @@ pipeline {
         }
     }
 }
+
 
 
 
