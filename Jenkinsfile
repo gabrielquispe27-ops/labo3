@@ -9,22 +9,25 @@ pipeline {
         
         stage('Build') {
             steps {
-                script {
-                    // Pide a Jenkins la herramienta Maven y guarda su ruta
-                    def mvnHome = tool 'Maven_3.9.6'
-                    
-                    // Ejecuta el comando de Maven usando la ruta completa
-                    sh "${mvnHome}/bin/mvn clean install -DskipTests"
+                // Entra en la carpeta del proyecto antes de compilar
+                dir('primer-api-rest') {
+                    script {
+                        def mvnHome = tool 'Maven_3.9.6'
+                        sh "${mvnHome}/bin/mvn clean install -DskipTests"
+                    }
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                script {
-                    def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('sonarqube') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=labo3-gabriel -Dsonar.sources=. -Dsonar.java.binaries=target/classes"
+                // Entra también en la carpeta para el análisis
+                dir('primer-api-rest') {
+                    script {
+                        def scannerHome = tool 'SonarScanner'
+                        withSonarQubeEnv('sonarqube') {
+                            sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=labo3-gabriel -Dsonar.sources=. -Dsonar.java.binaries=target/classes"
+                        }
                     }
                 }
             }
@@ -38,4 +41,5 @@ pipeline {
         }
     }
 }
+
 
