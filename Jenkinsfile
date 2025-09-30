@@ -5,7 +5,7 @@ pipeline {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/gabrielquispe27-ops/laboratorio-3.git',
-                    credentialsId: 'github'
+                    credentialsId: 'github-token'
             }
         }
     }
