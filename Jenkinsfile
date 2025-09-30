@@ -3,13 +3,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                // Realiza el checkout y descarga el contenido de los submódulos de forma recursiva
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/gabrielquispe27-ops/laboratorio-3.git']],
+                    extensions: [[$class: 'SubmoduleOption', recursiveSubmodules: true]]
+                ])
             }
         }
         
         stage('Build') {
             steps {
-                // Entra en la carpeta del proyecto antes de compilar
+                // Entra en la carpeta del proyecto que ahora sí contiene el pom.xml
                 dir('primer-api-rest') {
                     script {
                         def mvnHome = tool 'Maven_3.9.6'
@@ -41,5 +47,6 @@ pipeline {
         }
     }
 }
+
 
 
